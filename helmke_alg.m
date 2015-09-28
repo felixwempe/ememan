@@ -50,11 +50,10 @@ for i=1:max_it
     end
    
     % Project back on the essential manifold.
-    U_kk = U_k*exp([0 -x_opt(3)/sqrt(2) x_opt(2); x_opt(3)/sqrt(2) 0 -x_opt(1); -x_opt(2) x_opt(1) 0]);
-    V_kk = V_k*exp([0 x_opt(3)/sqrt(2) x_opt(5); -x_opt(3)/sqrt(2) 0 -x_opt(4); -x_opt(5) x_opt(4) 0]);
+    U_kk = U_k*expm([0 -x_opt(3)/sqrt(2) x_opt(2); x_opt(3)/sqrt(2) 0 -x_opt(1); -x_opt(2) x_opt(1) 0]);
+    V_kk = V_k*expm([0 x_opt(3)/sqrt(2) x_opt(5); -x_opt(3)/sqrt(2) 0 -x_opt(4); -x_opt(5) x_opt(4) 0]);
     E_kk = U_kk * E_0 * V_kk';
     
-    % Give out iteration number.
    
     % Check if convergence criteria is fulfilled.
     % Calculate the new gradient.
@@ -68,6 +67,7 @@ for i=1:max_it
     V_k = V_kk;
     E = E_kk;
 end
+fprintf('Number of iterations used to converge: %s \n', i)
 EssMatGuess = E_kk;
 end
 
