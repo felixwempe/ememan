@@ -1,6 +1,6 @@
 function [ U_est, V_est, numb_it ] = helmke_alg_smoothed( U_init, V_init,...
-    U_prev, V_prev, U_prev_prev, V_prev_prev, acc, m_1, m_2, max_it )
-%% Smoothed Helmke algorithm.
+    U_prev, V_prev, acc, m_1, m_2, max_it )
+%% Smoothed Helmke algorithm., U_prev_prev, V_prev_prev
 % Estimates the essential matrix based on the algorithm provided in 
 % Helmkes paper. Using additionally the information of the step before to
 % trajectory.
@@ -23,21 +23,23 @@ Q_2 = [ zeros(9,2), -(1/2)*Q_z(:), (1/sqrt(2))*Q_x(:), (1/sqrt(2))*Q_y(:)];
 M = calc_M(m_1, m_2);
 
 %% Calculate the Estimated Essentiel Matrix.
-Omeg_1 = logm(U_prev_prev' * U_prev);
-Omeg_2 = logm(V_prev_prev * V_prev');
+% Omeg_1 = logm(U_prev_prev' * U_prev);
+% Omeg_2 = logm(V_prev_prev * V_prev');
+% 
+% % Get the direction from Ess_prev_prev to Ess_prev.
+% x_est = sqrt(2) * [Omeg_1(3,2); Omeg_1(1,3); (sqrt(2)/2)*(Omeg_1(2,1) + Omeg_2(2,1)); ...
+%     Omeg_2(2,3); Omeg_2(3,1)];
+% 
+% % Use the direction and progress it from Ess_prev to get an estimation for
+% % the Essential matrix.
+% U_est = U_prev*expm([0 -x_est(3)/sqrt(2) x_est(2);...
+%     x_est(3)/sqrt(2) 0 -x_est(1); -x_est(2) x_est(1) 0]);
+% V_est = V_prev*expm([0 x_est(3)/sqrt(2) x_est(5);...
+%     -x_est(3)/sqrt(2) 0 -x_est(4); -x_est(5) x_est(4) 0]);
+% 
+% Ess_est = U_est * E_0 * V_est';
 
-% Get the direction from Ess_prev_prev to Ess_prev.
-x_est = sqrt(2) * [Omeg_1(3,2); Omeg_1(1,3); (sqrt(2)/2)*(Omeg_1(2,1) + Omeg_2(2,1)); ...
-    Omeg_2(2,3); Omeg_2(3,1)];
-
-% Use the direction and progress it from Ess_prev to get an estimation for
-% the Essential matrix.
-U_est = U_prev*expm([0 -x_est(3)/sqrt(2) x_est(2);...
-    x_est(3)/sqrt(2) 0 -x_est(1); -x_est(2) x_est(1) 0]);
-V_est = V_prev*expm([0 x_est(3)/sqrt(2) x_est(5);...
-    -x_est(3)/sqrt(2) 0 -x_est(4); -x_est(5) x_est(4) 0]);
-
-Ess_est = U_est * E_0 * V_est';
+Ess_est = U_prev * E_0 * V_prev';
 
 %% First projection.
 U_k = U_init;
