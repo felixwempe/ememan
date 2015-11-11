@@ -1,0 +1,59 @@
+function [ Estimate ] = evaluate( data_dir, gt_dir, sequence, U_init, V_init, ...
+    Calib_mat, accuracy, algorithm, numb_frames, save_dir )
+%This function evaluates different types of the algorithm presented in the
+%paper of Helmke. 
+%   The input parameters are:
+%   data_dir:   data directory for which the algorithm shall be evaluated.
+%   gt_dir:     groundtruth data directory belonging to the given data.
+%   sequence:   Number of sequence of kitti data.
+%   U_init:     Initialization of U.
+%   V_init:     Initialization of V.
+%   Calib_mat:  Calibration matrix of the camera belonging to the data.
+%   accuracy:   Accuracy the algorithm should attain
+%   algorithm:  Which type of Helmke's algorithm is used.
+%   save_dir:   Directory to save the data to.
+%   numb_frames:How many data frames are used (leave empty for all)
+
+% Read in the data. M1 and M2 are structs containing in each cell the
+% points from image1 and image2 for which the essentiell matrix shall be
+% estimated.
+[M1, M2] = data_read(data_dir, Calib_mat, numb_frames);
+
+% Read the groundtruth data into a struct P containing rotation and
+% translation groundtruth informations of each image pair.
+P = gt_read(gt_dir, sequence, numb_frames);
+
+% Estimate saves the results of each iteration.
+Estimate(numb_frames) = struct;
+Rotation(numb_frames) = struct;
+Translation(numb_frames) = struct;
+for i=1:numb_frames
+    if (i>1) && (strcmp(algorithm, 'smooth')
+    [U, V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
+        algorithm, U_prev, V_prev);
+    [dist_R, dist_t, R_est, t_est] = compare_to_groundtruth(U, V, P(i-1).P, P(i).P);
+    
+    %Save results.
+    Rotation(i).R = R_est;
+    Translation(i).t = t_est;
+    Estimate(i).U = U;
+    Estimate(i).V = V;
+    Estimate(i).iter = iter;
+    Estimate(i).time = time;
+    Estimate(i).dist_R = dist_R;
+    Estimate(i).dist_t = dist_t;
+end
+
+if ~isdir('save_dir')
+    mkdir(save_dir);
+end
+
+save([save_dir, '/Final_res_' sequence, '_', algorithm , '.mat'], 'Estimate')
+save([save_dir, '/Final_rot_' sequence, '_', algorithm , '.mat'], 'Rotation')
+save([save_dir, '/Final_trans_' sequence, '_', algorithm , '.mat'], 'Translation')
+
+% Plot the results.
+plot_rigid_motion(Rotation, Translation);
+
+end
+
