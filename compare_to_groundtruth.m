@@ -16,6 +16,9 @@ cross_t = U_est * W * E_0 * U_est';
 t_est = -[cross_t(3,2); cross_t(1,3); cross_t(2,1)];
 R_est = U_est * W' * V_est';
 
+if t_est(3)<0
+    t_est = -t_est;
+end
 % Then compare it to the groundtruth rotation matrix.
 R_gt_prev = P_prev(1:3,1:3);
 t_gt_prev = P_prev(1:3,4);
@@ -32,11 +35,11 @@ if dist_R>1
 
 end
 % Furthermore compare the translation vector.
-dist_t = acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
-if dist_t>1
-    t_est = -t_est;
-    dist_t = acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
-
-end
+dist_t = pi-acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
+% if dist_t>1
+%     t_est = -t_est;
+%     dist_t = acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
+% 
+% end
 end
 
