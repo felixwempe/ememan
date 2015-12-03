@@ -14,12 +14,14 @@ function [ M1, M2 ] = data_read(data_dir, Calib_mat, numb_frames)
 M1(numb_frames) = struct;
 M2(numb_frames) = struct;
 
-filenames = dir(data_dir);
+filenames = dir([data_dir ,'*.png']);
 
-im1 = single(imread([data_dir, filenames(3).name]));
+
+im1 = single(imread([data_dir, filenames(1).name]));
 [point1, descr1] = vl_sift(im1);
-for i=1:numb_frames
-    im2 = single(imread([data_dir, filenames(3+i).name]));
+for i=2:numb_frames
+    im2 = single(imread([data_dir, filenames(i).name]));
+    
     [point2, descr2] = vl_sift(im2);
     [matches, score] = vl_ubcmatch(descr1, descr2);
     % Select 200 best matches.

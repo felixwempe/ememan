@@ -17,7 +17,7 @@ function [U_kk, V_kk, iter, time] = Helmke(U_init, V_init, m_1, m_2, accuracy, .
 %       iter:   iterations needed to converge.
 %       time:   time used for the algorithm.
 tic
-iter = 20;
+iter = 50;
 delta = 1;
 % Matrices we need throughout the algorithm.
 max_it = 20;

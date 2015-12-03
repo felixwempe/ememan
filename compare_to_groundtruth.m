@@ -36,10 +36,10 @@ if dist_R>1
 end
 % Furthermore compare the translation vector.
 dist_t = pi-acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
-% if dist_t>1
-%     t_est = -t_est;
-%     dist_t = acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
-% 
-% end
+if dist_t>1
+    t_est = -t_est;
+    dist_t = pi - acos((t_est.*t_gt)'*ones(3,1)/(norm(t_est)*norm(t_gt)));
+
+end
 end
 
