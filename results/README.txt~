@@ -1,0 +1,5 @@
+This folder contains data to evaluate the algorithm.
+Two types of Matlab files are saved:
+   - matched_points_(seq)_1.mat contains all pointmatches for all frames of the first image.
+   - matched_points_(seq)_2.mat contains all pointmatches for all frames of the second image.
+   - gt_data_(seq).mat contains the groundtruth data of the odometry.

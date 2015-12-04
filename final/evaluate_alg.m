@@ -22,6 +22,13 @@ for i=1:numb_frames
     if (strcmp(algorithm, 'smooth')) && (i>1)
         [U, V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
             algorithm, U_prev, V_prev);
+        U_prev =U;
+        V_prev =V;
+    elseif strcmp(algorithm, 'smooth')
+        [U,V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
+            'helmke');%first iteration of smooth algorithm.
+        U_prev =U;
+        V_prev =V;
     else
         [U,V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
             algorithm);
