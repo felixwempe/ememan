@@ -15,16 +15,16 @@ end
 
 Bool = abs(H * E(:)) <= delta;
 
-if sum(Bool) == 0
-    M_1 = zeros(9,9);
-else
+if any(Bool(:))
     M_1 = (1/sum(Bool))* (H(Bool,:)' * H(Bool,:));
+else
+    M_1 = zeros(9,9);
 end
 
-if sum(~Bool == 0)
-    M_2 = zeros(1,9);
-else
+if any(~Bool(:))
     M_2 = H(~Bool,:);
+else
+    M_2 = zeros(9,9);
 end
     
 numb_good = sum(Bool);

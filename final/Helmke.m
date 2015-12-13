@@ -1,4 +1,4 @@
-function [U_kk, V_kk, iter, time] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
+function [U_kk, V_kk, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
         algorithm, U_prev, V_prev)
 %The function computed the Helmke algorithm for different types of Energy
 %functions.
@@ -16,9 +16,9 @@ function [U_kk, V_kk, iter, time] = Helmke(U_init, V_init, m_1, m_2, accuracy, .
 %       V:      Estimated V.
 %       iter:   iterations needed to converge.
 %       time:   time used for the algorithm.
-tic
-iter = 50;
-delta = 1;
+
+iter = 500;
+delta = 1e-03;
 % Matrices we need throughout the algorithm.
 max_it = 20;
 
@@ -66,6 +66,8 @@ for i=1:max_it
     % Get the opimal direction.
     if min(eig(Hessian))> accuracy
         x_opt = Hessian'\(-grad);
+    elseif strcmp(algorithm, 'huber')
+        x_opt = Hessian'\(-grad);
     else
         x_opt = H_hat'\(-grad);
     end
@@ -100,5 +102,5 @@ for i=1:max_it
     U_k = U_kk;
     V_k = V_kk;
 end
-time = toc;
+
 

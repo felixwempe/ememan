@@ -13,16 +13,13 @@ InGuess = eye(3)*[0 -1 0; 1 0 0; 0 0 0];
 
 accuracy = 0.0000001;
 algorithm = 'huber';
-numb_frames =2000;
+numb_frames =200;
 
-% data_dir = '/home/felix/Uni/Praktikum_Andreas_Neufeld/dataset/sequences/00/image_0/';
-gt_dir = '/home/felix/Uni/Praktikum_Andreas_Neufeld/dataset/dataset/poses/';
-% sequence = '00';
 
 %% Read the data. 
 % M1 and M2 are structs containing in each cell the points from image1 and
 % image2 for which the essentiell matrix shall be estimated.
-% [M1, M2] = data_read(data_dir, Calib_mat, numb_frames);
+
 load('results/matched_points_00_1.mat');
 load('results/matched_points_00_2.mat');
 M1=M1(2:end);
@@ -30,9 +27,8 @@ M2=M2(2:end);
 %% Read the groundtruth data.
 % Into a struct P containing rotation and translation groundtruth
 % informations of each image pair.
-sequence = '00';
-P = gt_read(gt_dir, sequence, numb_frames);
-% load('projections.mat');
+
+load('results/gt_data_02.mat');
 %% Run the algorithm on all frames.
 
 [Estimate, Rotation, Translation] = evaluate_alg( M1, M2, P, U_init, V_init,...
@@ -44,7 +40,7 @@ P_t(numb_frames) = struct;
 for i=1:numb_frames
     P_t(i).t = P(i).P(1:3,4);
 end
-plot_rigid_motion(Rotation, Translation, P_t);
+plot_rigid_motion(Rotation, Translation, P_t, numb_frames);
 
 %% Save the results to directory.
 % if ~isdir('save_dir')

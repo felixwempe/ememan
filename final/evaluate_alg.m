@@ -1,5 +1,5 @@
 function [ Estimate, Rotation, Translation ] = evaluate_alg( M1, M2, P, ...
-    U_init, V_init, accuracy, algorithm, numb_frames)
+    U_init, V_init, accuracy, algorithm, numb_frames, bol_ransac)
 %This function evaluates different types of the algorithm presented in the
 %paper of Helmke. 
 %   The input parameters are:
@@ -12,33 +12,49 @@ function [ Estimate, Rotation, Translation ] = evaluate_alg( M1, M2, P, ...
 %   accuracy:   Accuracy the algorithm should attain
 %   algorithm:  Which type of Helmke's algorithm is used.
 %   save_dir:   Directory to save the data to.
-%   numb_frames:How many data frames are used (leave empty for all)
+%   numb_frames:How many data frames are used 
+%   bol_ransac: Boolean to descide if ransac is used or not.
+bol = exist('bol_ransac');
+acc = 1e-04;
+if ~bol
+    bol_ransac = false;
+end
 
 % Estimate saves the results of each iteration.
 Estimate(numb_frames) = struct;
 Rotation(numb_frames) = struct;
 Translation(numb_frames) = struct;
 for i=1:numb_frames
+    tic
+    if bol_ransac
+        for j=1:50
+            [m_1, m_2] = ransacs(M1(i).m, M2(i).m, acc*10^(j-1));
+            if length(m_1)>50
+                break
+            end
+        end
+    else
+        m_1 = M1(i).m;
+        m_2 = M2(i).m;
+    end
     if (strcmp(algorithm, 'smooth')) && (i>1)
-        [U, V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
+        [U, V, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
             algorithm, U_prev, V_prev);
         U_prev =U;
         V_prev =V;
     elseif strcmp(algorithm, 'smooth')
-        [U,V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
+        [U,V, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
             'helmke');%first iteration of smooth algorithm.
         U_prev =U;
         V_prev =V;
     else
-        [U,V, iter, time] = Helmke(U_init, V_init, M1(i).m, M2(i).m, accuracy, ...
+        [U,V, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
             algorithm);
     end
-    if i>1
-        [dist_R, dist_t, R_est, t_est] = compare_to_groundtruth(U, V, P(i-1).P, P(i).P);
-    else
-        [dist_R, dist_t, R_est, t_est] = compare_to_groundtruth(U,V, ...
-            [eye(3), zeros(3,1);zeros(1,3), 1], P(i).P);
-    end
+    time = toc;
+    
+    [dist_R, dist_t, R_est, t_est] = compare_to_groundtruth(U, V,...
+        P(i).P, P(i+1).P);
     
     %Save results.
     Rotation(i).R = R_est;

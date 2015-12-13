@@ -1,10 +1,10 @@
-function [] = plot_rigid_motion(Rotations, translations, translations_groundtruth)
+function [] = plot_rigid_motion(Rotations, translations, translations_groundtruth, numb_frames)
 %This function plots the rigid motion of the estimated rotations and
 %translations.
 P = [eye(3),zeros(3,1);0 0 0 1];
 vec_est = P(1:3,4);
 vec_gt = P(1:3,4);
-for i=1:length(Rotations)
+for i=1:numb_frames
     P = P * [Rotations(i).R ,translations(i).t; 0 0 0 1];
     vec_est = [vec_est, P(1:3,4)*(norm(translations_groundtruth(i).t)/norm(P(1:3,4)))];
     vec_gt = [ vec_gt, translations_groundtruth(i).t];
