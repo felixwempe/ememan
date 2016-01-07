@@ -16,6 +16,7 @@ function [U_kk, V_kk, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
 %       V:      Estimated V.
 %       iter:   iterations needed to converge.
 %       time:   time used for the algorithm.
+lambda = 1e-02;
 
 iter = 500;
 delta = 1e-03;
@@ -46,7 +47,7 @@ elseif strcmp(algorithm, 'huber')
 elseif strcmp(algorithm, 'smooth')
     M = calc_M(m_1, m_2);
     E_est = U_prev * E_0 * V_prev';
-    [grad, J] = get_gradient_smooth(U_k, V_k, E_est, M, Q_1, Q_2);
+    [grad, J] = get_gradient_smooth(U_k, V_k, E_est, M, Q_1, Q_2, lambda);
 else
     error('The input for algorithm is not valid.')
 end
@@ -60,7 +61,7 @@ for i=1:max_it
         [Hessian, H_hat] = get_hessian_huber(U_k, V_k, E_k, J, M_1, M_2, ...
             Sign, Q_1, Q_2, numb_good, numb_all, delta);
     elseif strcmp(algorithm, 'smooth')
-        [Hessian, H_hat] = get_hessian_smoothed(U_k, V_k, J, E_est, M, Q_1, Q_2);
+        [Hessian, H_hat] = get_hessian_smoothed(U_k, V_k, J, E_est, M, Q_1, Q_2, lambda);
     end
     
     % Get the opimal direction.
@@ -88,7 +89,7 @@ for i=1:max_it
         numb_all, Q_1, Q_2, delta);
         E_k = E_kk;
     elseif strcmp(algorithm, 'smooth')
-        [grad, J] = get_gradient_smooth(U_kk, V_kk, E_est, M, Q_1, Q_2);
+        [grad, J] = get_gradient_smooth(U_kk, V_kk, E_est, M, Q_1, Q_2, lambda);
     end
     
     % Check for convergence.

@@ -1,4 +1,4 @@
-function [Hessian, H_hat] = get_hessian_smoothed(U_k, V_k, J, E_est, M, Q_1, Q_2)
+function [Hessian, H_hat] = get_hessian_smoothed(U_k, V_k, J, E_est, M, Q_1, Q_2,lambda)
 %This function computes the hessian of the smoothed energy function.
 E_0 = [1 0 0; 0 1 0; 0 0 0];
 
@@ -18,8 +18,8 @@ D_D = reshape(D_D_vec, [3,3]);
 H_D_til = [Q_1', Q_2'] * [-(kron(D_D*E_0, eye(3))), kron(D_D, E_0);...
     kron(D_D', E_0), -kron(E_0*D_D,eye(3))] * [Q_1; Q_2];
 
-Hessian = H_hat + H_til + H_D_hat + H_D_til;
+Hessian = H_hat + H_til + lambda*(H_D_hat + H_D_til);
 
-H_hat = H_hat + H_D_hat;
+H_hat = H_hat + lambda*H_D_hat;
 
 end
