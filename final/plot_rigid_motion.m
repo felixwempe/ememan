@@ -1,4 +1,4 @@
-function [] = plot_rigid_motion(Rotations, translations, P_gt, numb_frames)
+function [ret_est, ret_gt] = plot_rigid_motion(Rotations, translations, P_gt, numb_frames, seq, lambda)
 %This function plots the rigid motion of the estimated rotations and
 %translations.
 P_est = [eye(3),zeros(3,1);0 0 0 1];
@@ -16,7 +16,21 @@ for i=1:numb_frames
 end
 figure
 hold on
-plot(vec_est(1,:), vec_est(3,:), 'r')
-plot(vec_gt(1,:), vec_gt(3,:), 'b')
+plot(vec_est(1,:), vec_est(3,:), 'r', 'LineWidth', 3)
+plot(vec_gt(1,:), vec_gt(3,:), 'b', 'LineWidth', 3)
+% title('Rigid motion')
+h_legend = legend('estimated', 'groundtruth');
+set(h_legend,'FontSize',20);
+
+ret_est = vec_est([1,3],:);
+ret_gt = vec_gt([1,3],:);
 hold off
+% Save coordinates to files.
+fileid = fopen(['plots/Seq', num2str(seq) ,'ransac', lambda, 'est.dat'], 'w');
+fprintf(fileid, '%f \t %f\n', ret_est);
+fclose(fileid);
+
+fileid = fopen(['plots/Seq', num2str(seq) ,'ransac', lambda, 'gt.dat'], 'w');
+fprintf(fileid, '%f \t %f\n', ret_gt);
+fclose(fileid);
 end

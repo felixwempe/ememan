@@ -13,7 +13,7 @@ function [ Estimate, Rotation, Translation ] = evaluate_alg( M1, M2, P, ...
 %   algorithm:  Which type of Helmke's algorithm is used.
 %   save_dir:   Directory to save the data to.
 %   numb_frames:How many data frames are used 
-%   bol_ransac: Boolean to descide if ransac is used or not.
+%   bol_ransac: Boolean to descide which ransac is used 1:ransacs, 0:matlab implementation.
 bol = exist('bol_ransac');
 acc = 1e-04;
 if ~bol
@@ -27,15 +27,20 @@ Translation(numb_frames) = struct;
 for i=1:numb_frames
     tic
     if bol_ransac
+        tic
         for j=1:50
             [m_1, m_2] = ransacs(M1(i).m, M2(i).m, acc*10^(j-1));
             if length(m_1)>50
                 break
             end
         end
-    else
-        m_1 = M1(i).m;
-        m_2 = M2(i).m;
+        time_rans = toc;
+    else %to compare the two ransac methods
+        tic
+        [~, inlier] = estimateFundamentalMatrix(M1(i).m(:,[1,2]), M2(i).m(:,[1,2]));
+        m_1 = M1(i).m(inlier,:);
+        m_2 = M2(i).m(inlier,:);
+        time_rans = toc;
     end
     if (strcmp(algorithm, 'smooth')) && (i>1)
         [U, V, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
@@ -44,7 +49,7 @@ for i=1:numb_frames
         V_prev =V;
     elseif strcmp(algorithm, 'smooth')
         [U,V, iter] = Helmke(U_init, V_init, m_1, m_2, accuracy, ...
-            'helmke');%first iteration of smooth algorithm.
+            algorithm, U_init, V_init);%first iteration of smooth algorithm.
         U_prev =U;
         V_prev =V;
     else
@@ -65,6 +70,7 @@ for i=1:numb_frames
     Estimate(i).time = time;
     Estimate(i).dist_R = dist_R;
     Estimate(i).dist_t = dist_t;
+    Estimate(i).time_rans = time_rans;
 end
 
 end

@@ -11,9 +11,9 @@ InGuess = eye(3)*[0 -1 0; 1 0 0; 0 0 0];
 [U_init, ~, V_init] = svd(InGuess);
 
 
-accuracy = 0.0000001;
-algorithm = 'smooth';
-numb_frames =4500;
+accuracy = 1e-07;
+algorithm = 'helmke';
+numb_frames =800;
 
 
 %% Read the data. 
@@ -28,11 +28,11 @@ M2=M2(2:end);
 % Into a struct P containing rotation and translation groundtruth
 % informations of each image pair.
 
-load('results/gt_data_00.mat');
+load('results/gt_data_02.mat');
 %% Run the algorithm on all frames.
 
 [Estimate, Rotation, Translation] = evaluate_alg( M1, M2, P, U_init, V_init,...
-    accuracy, algorithm, numb_frames);
+    accuracy, algorithm, numb_frames, true);
 
 %% Plot the results.
 
